@@ -2,7 +2,7 @@ export interface JwtUser {
   id: string;
   email: string;
   role: string;
-  organizationId: string;
+  orgId: string;
 }
 
 export interface RequestWithUser extends Request {

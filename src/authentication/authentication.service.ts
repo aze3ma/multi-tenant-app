@@ -1,5 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { User } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 import { PrismaService } from 'prisma/prisma.service';
 
@@ -14,7 +15,7 @@ export class AuthenticationService {
     email: string;
     password: string;
     organizationName: string;
-  }) {
+  }): Promise<{ user: { id: string; email: string }; accessToken: string }> {
     const hashedPassword = await bcrypt.hash(dto.password, 12);
 
     const user = await this.prisma.user.create({
@@ -33,13 +34,13 @@ export class AuthenticationService {
       sub: user.id,
       email: user.email,
       role: user.role,
-      organizationId: user.organizationId,
+      orgId: user.orgId,
     });
 
     return { user: { id: user.id, email: user.email }, accessToken: token };
   }
 
-  async validateUser(email: string, password: string) {
+  async validateUser(email: string, password: string): Promise<User | null> {
     const user = await this.prisma.user.findUnique({ where: { email } });
 
     if (!user) return null;
@@ -51,7 +52,10 @@ export class AuthenticationService {
     return user;
   }
 
-  async login(dto: { email: string; password: string }) {
+  async login(dto: {
+    email: string;
+    password: string;
+  }): Promise<{ accessToken: string }> {
     const user = await this.validateUser(dto.email, dto.password);
 
     if (!user) throw new UnauthorizedException('Invalid Credentials');
@@ -60,7 +64,7 @@ export class AuthenticationService {
       sub: user.id,
       email: user.email,
       role: user.role,
-      organizationId: user.organizationId,
+      orgId: user.orgId,
     });
 
     return { accessToken: token };

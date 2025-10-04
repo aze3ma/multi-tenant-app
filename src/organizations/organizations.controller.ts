@@ -19,6 +19,6 @@ export class OrganizationsController {
   @UseGuards(RolesGuard)
   @Roles('ADMIN')
   getOrganizationUsers(@Request() req: RequestWithUser) {
-    return this.organizationsService.findById(req.user.organizationId);
+    return this.organizationsService.findById(req.user.orgId);
   }
 }

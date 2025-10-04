@@ -16,8 +16,13 @@ export class JWTStrategy extends PassportStrategy(Strategy) {
     sub: string;
     email: string;
     role: string;
-    organizationId: string;
-  }) {
+    orgId: string;
+  }): Promise<{
+    id: string;
+    email: string;
+    role: string;
+    orgId: string | null;
+  }> {
     const user = await this.prisma.user.findUnique({
       where: { id: payload.sub },
     });
@@ -28,7 +33,7 @@ export class JWTStrategy extends PassportStrategy(Strategy) {
       id: user.id,
       email: user.email,
       role: user.role,
-      organizationId: user.organizationId,
+      orgId: user.orgId,
     };
   }
 }
